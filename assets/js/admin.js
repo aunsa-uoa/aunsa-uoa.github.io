@@ -662,7 +662,6 @@ const SITE_FIELDS = [
   { name: 'fullName', label: 'Full club name' },
   { name: 'tagline', label: 'Tagline' },
   { name: 'intro', label: 'Home page introduction', type: 'textarea' },
-  { name: 'draftBanner', label: 'Yellow banner at the top of every page', help: 'Clear this to hide the banner.' },
   { name: 'linktreeUrl', label: 'Linktree link', type: 'url', help: 'Used by the Linktree button in the navigation bar.' },
   { name: 'email', label: 'Club email', type: 'email' },
   { name: 'instagramHandle', label: 'Instagram handle', help: 'Without the @' },

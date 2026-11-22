@@ -125,10 +125,6 @@
     }).join('');
     var linktree = safeUrl(site.linktreeUrl);
 
-    /* The draft banner sits above the header so the header alone stays pinned while scrolling. */
-    if (site.draftBanner && !$('.draft-banner')) {
-      $('#site-header').insertAdjacentHTML('beforebegin', '<p class="draft-banner" role="note">' + esc(site.draftBanner) + '</p>');
-    }
     fill('#site-header',
       '<header class="site-header"><div class="container header-inner">' +
         '<a class="brand" href="index.html" aria-label="' + esc(site.shortName || 'AUNSA') + ' home">' +
@@ -233,7 +229,7 @@
         '</dl></details>' +
         '<div class="event-actions">' +
           (signup ? '<a class="btn btn-purple btn-sm" href="' + esc(signup) + '">Sign up<span class="visually-hidden"> for ' + esc(e.title) + '</span></a>'
-                  : '<span class="pill blue">Sign-ups open soon</span>') +
+                  : '') +
         '</div>' +
       '</div></article>';
   }
@@ -487,11 +483,12 @@
     }
     document.title = guide.title + ' · AUNSA';
 
+    var body = String(guide.body || '').replace(/^\s*\*Sample guide\. Replace this with the text from your Google Doc\.\*\s*/, '');
     var html;
     if (window.marked && window.DOMPurify) {
-      html = window.DOMPurify.sanitize(window.marked.parse(String(guide.body || ''), { breaks: true }));
+      html = window.DOMPurify.sanitize(window.marked.parse(body, { breaks: true }));
     } else {
-      html = '<p style="white-space:pre-wrap">' + esc(guide.body) + '</p>';
+      html = '<p style="white-space:pre-wrap">' + esc(body) + '</p>';
     }
     var doc = safeUrl(guide.googleDocUrl);
     var updated = parseDate(guide.updated);

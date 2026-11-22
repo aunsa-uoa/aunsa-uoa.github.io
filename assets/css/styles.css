@@ -120,8 +120,6 @@ a:hover { text-decoration-thickness: 0.16em; }
 .btn-outline { background: transparent; color: var(--ink); border-color: var(--ink); }
 .btn-sm { min-height: 44px; padding: 0.45rem 1.05rem; font-size: 1rem; }
 
-/* ---------- Draft banner (clear "Draft banner" in Club settings to hide) ---------- */
-.draft-banner { margin: 0; padding: 0.45rem 1rem; background: var(--sun); color: var(--ink); text-align: center; font-size: 0.92rem; font-weight: 700; }
 
 /* ---------- Header ---------- */
 /* The wrapper is what sticks, so the header stays pinned to the top while scrolling */

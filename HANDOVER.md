@@ -34,7 +34,7 @@ The president can change any of these at any time.
 
 **Publish a guide from Google Docs:** **Guides → Add guide**. Copy everything from your Google Doc and paste it into **Guide text**. Headings, lists, bold and links carry over. Use the buttons above the box to tidy anything up.
 
-**Update the Linktree link, email or banner:** **Club settings**. The Linktree button in the navigation bar updates everywhere.
+**Update the Linktree link or email:** **Club settings**. The Linktree button in the navigation bar updates everywhere.
 
 **Membership form (Join AUNSA!):** make the form in Google Forms, then in the form's **Responses** tab click **Link to Sheets**, so every sign-up lands in a Google Sheet automatically. Click **Send**, choose the link tab, untick **Shorten URL**, and paste the full link into **Club settings → Membership form link**. The form then appears right on the website's Join page. Create the form with the club Google account so it's handed over with everything else.
 
