@@ -783,11 +783,11 @@ views.access = async (panel) => {
         '<div class="item-actions">' +
           (m.isPresident ? '' : '<button class="small-btn" type="button" data-save-perms="' + esc(m.email) + '">Save permissions</button>') +
           '<button class="small-btn" type="button" data-role="' + esc(m.email) + '">Change role</button>' +
-          '<button class="small-btn" type="button" data-email="' + esc(m.email) + '">Change email</button>' +
+          '<button class="small-btn" type="button" data-change-email="' + esc(m.email) + '">Change email</button>' +
           (m.isPresident
-            ? '<button class="small-btn" type="button" data-unpres="' + esc(m.email) + '"' + (presidents <= 1 ? ' disabled title="There must always be at least one president"' : '') + '>Remove president status</button>'
+            ? '<button class="small-btn" type="button" data-unpres="' + esc(m.email) + '">Remove president status</button>'
             : '<button class="small-btn" type="button" data-pres="' + esc(m.email) + '">Make president</button>') +
-          '<button class="small-btn danger" type="button" data-remove="' + esc(m.email) + '"' + (m.isPresident && presidents <= 1 ? ' disabled title="Make someone else president first"' : '') + '>Remove access</button>' +
+          '<button class="small-btn danger" type="button" data-remove="' + esc(m.email) + '">Remove access</button>' +
         '</div></section>').join('') + '</div>' : '<p class="empty">No execs yet. Add the president first.</p>');
 
   const addForm = $('[data-add-form]', panel);
@@ -822,29 +822,39 @@ views.access = async (panel) => {
 
   panel.onclick = async (e) => {
     const b = e.target.closest('button'); if (!b || b.type === 'submit') return;
-    const email = b.getAttribute('data-save-perms') || b.getAttribute('data-role') || b.getAttribute('data-email') || b.getAttribute('data-pres') || b.getAttribute('data-unpres') || b.getAttribute('data-remove');
+    const email = b.getAttribute('data-save-perms') || b.getAttribute('data-role') || b.getAttribute('data-pres') || b.getAttribute('data-unpres') || b.getAttribute('data-remove') || b.getAttribute('data-change-email');
     if (!email) return;
     const m = members.find((x) => x.email === email);
+    /* Removing the last president is allowed: the club Google account always keeps full control. */
+    const lastPresidentWarning = m && m.isPresident && presidents <= 1
+      ? '\n\n' + m.name + ' is the only president. Afterwards, only the club Google account' + (OWNER_EMAIL ? ' (' + OWNER_EMAIL + ')' : '') + ' will have full control until you make someone else president.'
+      : '';
     try {
+      if (b.hasAttribute('data-change-email')) {
+        const input = window.prompt('New Google email for ' + m.name + '.\nIt must be the exact account they sign in with:', m.email);
+        if (input == null) return;
+        const newEmail = input.trim().toLowerCase();
+        if (newEmail === m.email) return;
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(newEmail)) { toast('That doesn\'t look like an email address.', true); return; }
+        if (members.some((x) => x.email === newEmail)) { toast('That account already has access.', true); return; }
+        /* Accounts are stored by email, so copy to the new email, move the profile link, then remove the old one. */
+        await store.set('members/' + newEmail, { ...m, email: newEmail });
+        const profile = (await store.list('team')).find((t) => t.ownerEmail === m.email);
+        if (profile) await store.set('team/' + profile._id, { ...profile, ownerEmail: newEmail });
+        await store.remove('members/' + m.email);
+        await log('Changed sign-in email for', 'access', m.name + ' → ' + newEmail);
+        toast(m.name + ' now signs in with ' + newEmail + '.');
+        if (m.email === state.me.email) {
+          window.alert('You changed your own sign-in email. Sign in again with ' + newEmail + '.');
+          return store.signOut();
+        }
+        return views.access(panel);
+      }
       if (b.hasAttribute('data-save-perms')) {
         const perms = Object.fromEntries(SECTIONS.map((s) => [s.key, $('[data-perm="' + email + ':' + s.key + '"]', panel).checked]));
         await store.set('members/' + email, { ...m, perms });
         await log('Changed permissions for', 'access', m.name);
         toast('Permissions saved for ' + m.name + '.');
-      } else if (b.hasAttribute('data-email')) {
-        const next = (window.prompt('New Google email for ' + m.name + ' (the exact account they sign in with):', m.email) || '').trim().toLowerCase();
-        if (!next || next === email) return;
-        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(next)) { toast('Please enter a valid email address.', true); return; }
-        if (members.some((x) => x.email === next)) { toast('That email already has access.', true); return; }
-        // Move their access to the new email, then remove the old one.
-        await store.set('members/' + next, { ...m, email: next });
-        await store.remove('members/' + email);
-        // Keep their Meet the team profile linked to them.
-        const profile = (await store.list('team')).find((t) => t.ownerEmail === email);
-        if (profile) await store.set('team/' + profile._id, { ...profile, ownerEmail: next });
-        await log('Changed sign-in email for', 'access', m.name);
-        toast(m.name + ' now signs in with ' + next + '.');
-        if (email === state.me.email) return start();
       } else if (b.hasAttribute('data-role')) {
         const role = window.prompt('New role for ' + m.name + ':', m.role || '');
         if (role == null) return;
@@ -859,15 +869,13 @@ views.access = async (panel) => {
         await log('Made president', 'access', m.name);
         toast(m.name + ' is now a president.');
       } else if (b.hasAttribute('data-unpres')) {
-        if (presidents <= 1) { toast('There must always be at least one president.', true); return; }
-        if (!window.confirm('Remove president status from ' + m.name + '?')) return;
+        if (!window.confirm('Remove president status from ' + m.name + '?' + lastPresidentWarning)) return;
         await store.set('members/' + email, { ...m, isPresident: false, perms: { ...NO_PERMS, ...(m.perms || {}) } });
         await log('Removed president status from', 'access', m.name);
         toast('Done.');
         if (email === state.me.email) return start();
       } else if (b.hasAttribute('data-remove')) {
-        if (m.isPresident && presidents <= 1) { toast('Make someone else president first.', true); return; }
-        if (!window.confirm('Remove ' + m.name + '\'s access? They won\'t be able to sign in any more. Their Meet the team profile stays until you delete it.')) return;
+        if (!window.confirm('Remove ' + m.name + '\'s access? They won\'t be able to sign in any more. Their Meet the team profile stays until you delete it.' + lastPresidentWarning)) return;
         await store.remove('members/' + email);
         await log('Removed access for', 'access', m.name);
         toast(m.name + ' can no longer sign in.');
