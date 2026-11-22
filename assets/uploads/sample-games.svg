@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <rect width="1200" height="800" fill="#E9E0FB"/>
+  <rect x="250" y="250" width="240" height="240" rx="40" fill="#fff" transform="rotate(-10 370 370)"/>
+  <g fill="#7B4BD8"><circle cx="320" cy="320" r="22"/><circle cx="420" cy="420" r="22"/><circle cx="370" cy="370" r="22"/></g>
+  <rect x="640" y="260" width="300" height="300" rx="30" fill="#1565C0" transform="rotate(8 790 410)"/>
+  <rect x="690" y="310" width="90" height="90" rx="12" fill="#F6C945" transform="rotate(8 790 410)"/>
+  <rect x="800" y="420" width="90" height="90" rx="12" fill="#2E9E5B" transform="rotate(8 790 410)"/>
+  <circle cx="540" cy="640" r="40" fill="#2E9E5B"/><circle cx="640" cy="660" r="30" fill="#E36B6B"/>
+  <rect x="40" y="40" width="250" height="64" rx="32" fill="#ffffff" opacity="0.92"/>
+  <text x="165" y="82" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#7B4BD8">Sample photo</text>
+</svg>

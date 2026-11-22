@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Alex",
+    "role": "President",
+    "pronouns": "they/them",
+    "study": "Psychology, third year",
+    "bio": "Started AUNSA after wishing a club like this existed in first year. Happiest with headphones on and a good puzzle.",
+    "photo": ""
+  },
+  {
+    "name": "Priya",
+    "role": "Secretary",
+    "pronouns": "she/her",
+    "study": "Health Sciences, postgrad",
+    "bio": "Keeps meetings short and notes tidy. Will always send the agenda in advance.",
+    "photo": ""
+  },
+  {
+    "name": "Jordan",
+    "role": "Treasurer",
+    "pronouns": "he/they",
+    "study": "Commerce, third year",
+    "bio": "Turns grant forms into snacks.",
+    "photo": ""
+  },
+  {
+    "name": "Riley",
+    "role": "Events & Community Officer",
+    "pronouns": "she/her",
+    "study": "Music, second year",
+    "bio": "Plans every event with a quiet corner and a sensory guide.",
+    "photo": ""
+  },
+  {
+    "name": "Kai",
+    "role": "Social Media & Outreach Officer",
+    "pronouns": "they/them",
+    "study": "Design, second year",
+    "bio": "Looks after our Instagram and Linktree, and our partnerships with other clubs.",
+    "photo": ""
+  },
+  {
+    "name": "Sam",
+    "role": "Wellbeing & Equity Officer",
+    "pronouns": "he/him",
+    "study": "Education, third year",
+    "bio": "Makes sure AUNSA is a space where everyone feels safe, welcome and heard.",
+    "photo": ""
+  }
+]

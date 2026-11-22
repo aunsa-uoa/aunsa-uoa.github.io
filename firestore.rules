@@ -1,0 +1,90 @@
+rules_version = '2';
+
+// AUNSA security rules. These run on Google's servers, so permissions can't be
+// bypassed by tinkering with the website. Paste this whole file into
+// Firebase console > Firestore Database > Rules, after replacing OWNER_EMAIL.
+//
+// Who can do what:
+//   - Anyone: read the public content (events, team, guides, links, photos, settings)
+//   - Club owner account: everything, always (the emergency key)
+//   - President(s): everything, including managing execs and reading the activity log
+//   - Other execs: only the sections the president ticked for them,
+//     plus their own Meet the team profile
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The club's own Google account (always has full control)
+    function ownerEmail() { return 'aunsa.akl@gmail.com'; }
+
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+    function myEmail() { return request.auth.token.email.lower(); }
+    function isOwner() { return signedIn() && myEmail() == ownerEmail(); }
+    function memberPath() { return /databases/$(database)/documents/members/$(myEmail()); }
+    function isMember() { return signedIn() && exists(memberPath()); }
+    function me() { return get(memberPath()).data; }
+    function isPresident() { return isOwner() || (isMember() && me().isPresident == true); }
+    function can(section) {
+      return isPresident() || (isMember() && me().perms[section] == true);
+    }
+    function anyExec() { return isOwner() || isMember(); }
+
+    // Club settings, useful links and home-page Instagram photos
+    match /content/{section} {
+      allow read: if true;
+      allow write: if section in ['site', 'links', 'instagram'] && can(section);
+    }
+
+    match /events/{id} {
+      allow read: if true;
+      allow write: if can('events');
+    }
+
+    match /guides/{id} {
+      allow read: if true;
+      allow write: if can('guides');
+    }
+
+    // Team profiles: execs with "team" permission manage all profiles.
+    // Everyone else can edit only the profile linked to their own email,
+    // and can't change their role, order or who it's linked to.
+    match /team/{id} {
+      allow read: if true;
+      allow create, delete: if can('team');
+      allow update: if can('team')
+        || (isMember()
+            && resource.data.ownerEmail == myEmail()
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['name', 'pronouns', 'study', 'bio', 'photo', 'color', 'updatedAt', 'updatedBy']));
+    }
+
+    // Uploaded photos (shrunk in the browser, stored as data). Max ~900 KB each.
+    match /images/{id} {
+      allow read: if true;
+      allow create: if anyExec()
+        && request.resource.data.uploadedBy == myEmail()
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 900000;
+      allow delete: if isPresident() || (isMember() && resource.data.uploadedBy == myEmail());
+    }
+
+    // Exec accounts and permissions: only the president (or owner) can change them.
+    // Execs can read the list so the dashboard can show their own permissions.
+    match /members/{email} {
+      allow read: if anyExec();
+      allow write: if isPresident();
+    }
+
+    // Activity log: every exec can add entries about their own edits;
+    // only the president can read it; nobody can edit or delete entries.
+    match /log/{id} {
+      allow read: if isPresident();
+      allow create: if anyExec() && request.resource.data.email == myEmail();
+      allow update, delete: if false;
+    }
+  }
+}

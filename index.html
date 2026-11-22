@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AUNSA · Auckland Neurodivergent Students Association</title>
+  <meta name="description" content="AUNSA is a student club for neurodivergent students at the University of Auckland. A space where you don't have to mask.">
+  <meta property="og:title" content="AUNSA · Auckland Neurodivergent Students Association">
+  <meta property="og:description" content="AUNSA is a student club for neurodivergent students at the University of Auckland. A space where you don't have to mask.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/img/logo/aunsa-logo.webp">
+  <meta name="theme-color" content="#f6f4fc">
+  <link rel="icon" href="assets/img/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fredoka:wght@500..700&display=swap">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <!-- Applies saved comfort settings before the page appears. -->
+  <script>(function(){try{var p=JSON.parse(localStorage.getItem('aunsa-comfort')||'{}')||{},d=document.documentElement;if(p.text==='large'||p.text==='larger')d.setAttribute('data-text',p.text);if(p.spacing==='wide')d.setAttribute('data-spacing','wide');if(p.calm===true)d.setAttribute('data-calm','true');}catch(e){}})();</script>
+  <script src="assets/js/firebase-config.js" defer></script>
+  <script src="assets/js/data.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body data-page="home">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <span class="decor decor-1"><svg viewBox="0 0 40 40" fill="currentColor" aria-hidden="true"><circle cx="10" cy="10" r="7"/><circle cx="28" cy="20" r="5"/><circle cx="14" cy="32" r="4"/></svg></span>
+      <span class="decor decor-2"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg></span>
+      <span class="decor decor-3"><svg viewBox="0 0 40 40" fill="currentColor" aria-hidden="true"><circle cx="10" cy="10" r="7"/><circle cx="28" cy="20" r="5"/><circle cx="14" cy="32" r="4"/></svg></span>
+      <span class="decor decor-4"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg></span>
+      <div class="container">
+        <img class="hero-mark" src="assets/img/logo/aunsa-mark.webp" alt="" width="208" height="208">
+        <p class="hello">Hello! We are</p>
+        <h1 id="hero-title" class="wordmark" aria-label="AUNSA"><span class="aun">AUN</span><span class="sa">SA</span></h1>
+        <p class="hero-full" data-site="fullName">Auckland Neurodivergent Students Association</p>
+        <p class="tagline"><span data-site="tagline">A space where you don't have to mask</span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg></p>
+        <p class="hero-intro" data-site="intro"></p>
+        <div class="hero-actions">
+          <a class="btn btn-purple" href="join.html">Join AUNSA!</a>
+          <a class="btn btn-outline" href="#" data-site-href="linktreeUrl" data-logo="linktree">Our Linktree</a>
+          <a class="btn btn-outline" href="#" data-site-href="discordUrl" data-logo="discord">Join our Discord</a>
+          <a class="btn btn-outline" href="events.html">What's on</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="band band-purple" aria-labelledby="recent-title">
+      <div class="container">
+        <div class="band-head">
+          <h2 id="recent-title">What we've been up to</h2>
+          <div class="carousel-controls">
+            <button class="carousel-btn" type="button" data-carousel-prev aria-label="Previous events" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+            <button class="carousel-btn" type="button" data-carousel-next aria-label="Next events" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+          </div>
+        </div>
+        <div id="recent-events"><p class="loading">Loading events…</p></div>
+        <p><a class="btn btn-light" href="events.html">See all our events</a></p>
+      </div>
+    </section>
+
+    <section class="band band-green" aria-labelledby="discord-title">
+      <div class="container">
+        <div id="discord"></div>
+      </div>
+    </section>
+
+    <section class="band band-blue" aria-labelledby="ig-title">
+      <div class="container">
+        <h2 id="ig-title">Come say hi on Instagram</h2>
+        <div id="instagram"><p class="loading">Loading…</p></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <noscript><p class="container">Turn on JavaScript to see our events, team and resources, or find AUNSA on Instagram.</p></noscript>
+</body>
+</html>

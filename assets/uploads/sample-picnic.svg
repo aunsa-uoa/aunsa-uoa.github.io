@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <rect width="1200" height="800" fill="#D5F2DF"/>
+  <circle cx="980" cy="170" r="90" fill="#F6C945"/>
+  <path d="M0 560 Q300 470 600 540 T1200 520 V800 H0Z" fill="#9EDDB4"/>
+  <rect x="330" y="560" width="540" height="150" rx="20" fill="#fff"/>
+  <path d="M330 600h540M330 650h540M420 560v150M510 560v150M600 560v150M690 560v150M780 560v150" stroke="#E36B6B" stroke-width="14"/>
+  <circle cx="420" cy="520" r="34" fill="#7B4BD8"/><circle cx="600" cy="510" r="34" fill="#1565C0"/><circle cx="780" cy="520" r="34" fill="#2E9E5B"/>
+  <rect x="40" y="40" width="250" height="64" rx="32" fill="#ffffff" opacity="0.92"/>
+  <text x="165" y="82" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#2E9E5B">Sample photo</text>
+</svg>

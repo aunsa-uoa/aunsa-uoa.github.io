@@ -1,0 +1,52 @@
+[
+  {
+    "section": "At the University",
+    "links": [
+      { "name": "Inclusive Learning", "url": "https://www.auckland.ac.nz/en/students/student-support/academic-support/inclusive-learning.html", "description": "Support for neurodivergent students: study strategies and online hangouts." },
+      { "name": "All Systems Go! autism transition programme", "url": "https://www.auckland.ac.nz/en/students/student-support/academic-support/inclusive-learning/autism-tertiary-transition-programme.html", "description": "For autistic students starting at the University, with a Welcome Day you can bring whānau to." },
+      { "name": "Student Disability Services", "url": "https://www.auckland.ac.nz/en/students/student-support/personal-support/students-with-disabilities.html", "description": "Support and study adjustments, including arrangements for tests and exams." },
+      { "name": "University Health and Counselling Service", "url": "https://www.auckland.ac.nz/en/students/student-support/personal-support/student-health-counselling.html", "description": "Doctors, nurses and counsellors on campus for enrolled students." }
+    ]
+  },
+  {
+    "section": "Autism",
+    "links": [
+      { "name": "Autism New Zealand", "url": "https://autismnz.org.nz/", "description": "Information, support and advocacy for autistic people and their families." },
+      { "name": "Altogether Autism", "url": "https://www.altogetherautism.org.nz/", "description": "A free autism information and advice service." }
+    ]
+  },
+  {
+    "section": "ADHD",
+    "links": [
+      { "name": "ADHD New Zealand", "url": "https://www.adhd.org.nz/", "description": "Information, support groups and events for people with ADHD." }
+    ]
+  },
+  {
+    "section": "Dyslexia and learning",
+    "links": [
+      { "name": "Dyslexia Foundation of New Zealand", "url": "https://www.dyslexiafoundation.org.nz/", "description": "Practical information about dyslexia for learners and families." }
+    ]
+  },
+  {
+    "section": "Tourette's",
+    "links": [
+      { "name": "Tourette's Association of New Zealand", "url": "https://www.tourettes.org.nz/", "description": "Support and community for people with Tourette syndrome and tics." }
+    ]
+  },
+  {
+    "section": "Disability rights",
+    "links": [
+      { "name": "Disabled Persons Assembly NZ", "url": "https://www.dpa.org.nz/", "description": "Run by and for disabled people, working for an accessible Aotearoa." },
+      { "name": "Whaikaha, Ministry of Disabled People", "url": "https://www.whaikaha.govt.nz/", "description": "Government information about disability support and services." }
+    ]
+  },
+  {
+    "section": "Mental health",
+    "links": [
+      { "name": "1737, Need to talk?", "url": "https://1737.org.nz/", "description": "Free call or text 1737 any time to talk with a trained counsellor." },
+      { "name": "Lifeline Aotearoa", "url": "https://www.lifeline.org.nz/", "description": "24/7 helpline and text service." },
+      { "name": "Youthline", "url": "https://www.youthline.co.nz/", "description": "Support for young people by phone, text and webchat." },
+      { "name": "Mental Health Foundation", "url": "https://www.mentalhealth.org.nz/", "description": "Tools and guides for looking after your mental health." }
+    ]
+  }
+]
