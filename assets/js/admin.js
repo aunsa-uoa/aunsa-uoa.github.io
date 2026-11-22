@@ -783,6 +783,7 @@ views.access = async (panel) => {
         '<div class="item-actions">' +
           (m.isPresident ? '' : '<button class="small-btn" type="button" data-save-perms="' + esc(m.email) + '">Save permissions</button>') +
           '<button class="small-btn" type="button" data-role="' + esc(m.email) + '">Change role</button>' +
+          '<button class="small-btn" type="button" data-email="' + esc(m.email) + '">Change email</button>' +
           (m.isPresident
             ? '<button class="small-btn" type="button" data-unpres="' + esc(m.email) + '"' + (presidents <= 1 ? ' disabled title="There must always be at least one president"' : '') + '>Remove president status</button>'
             : '<button class="small-btn" type="button" data-pres="' + esc(m.email) + '">Make president</button>') +
@@ -821,7 +822,7 @@ views.access = async (panel) => {
 
   panel.onclick = async (e) => {
     const b = e.target.closest('button'); if (!b || b.type === 'submit') return;
-    const email = b.getAttribute('data-save-perms') || b.getAttribute('data-role') || b.getAttribute('data-pres') || b.getAttribute('data-unpres') || b.getAttribute('data-remove');
+    const email = b.getAttribute('data-save-perms') || b.getAttribute('data-role') || b.getAttribute('data-email') || b.getAttribute('data-pres') || b.getAttribute('data-unpres') || b.getAttribute('data-remove');
     if (!email) return;
     const m = members.find((x) => x.email === email);
     try {
@@ -830,6 +831,20 @@ views.access = async (panel) => {
         await store.set('members/' + email, { ...m, perms });
         await log('Changed permissions for', 'access', m.name);
         toast('Permissions saved for ' + m.name + '.');
+      } else if (b.hasAttribute('data-email')) {
+        const next = (window.prompt('New Google email for ' + m.name + ' (the exact account they sign in with):', m.email) || '').trim().toLowerCase();
+        if (!next || next === email) return;
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(next)) { toast('Please enter a valid email address.', true); return; }
+        if (members.some((x) => x.email === next)) { toast('That email already has access.', true); return; }
+        // Move their access to the new email, then remove the old one.
+        await store.set('members/' + next, { ...m, email: next });
+        await store.remove('members/' + email);
+        // Keep their Meet the team profile linked to them.
+        const profile = (await store.list('team')).find((t) => t.ownerEmail === email);
+        if (profile) await store.set('team/' + profile._id, { ...profile, ownerEmail: next });
+        await log('Changed sign-in email for', 'access', m.name);
+        toast(m.name + ' now signs in with ' + next + '.');
+        if (email === state.me.email) return start();
       } else if (b.hasAttribute('data-role')) {
         const role = window.prompt('New role for ' + m.name + ':', m.role || '');
         if (role == null) return;
