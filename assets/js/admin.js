@@ -1,5 +1,5 @@
 /* AUNSA exec dashboard
-   - Google sign-in through Firebase (or DEMO MODE until firebase-config.js is filled in)
+   - Google sign-in through Firebase
    - The president manages who has access and what each exec can edit
    - Permissions are also enforced on Google's servers by firestore.rules */
 
@@ -8,10 +8,7 @@ const LIVE = Boolean(CONFIG.apiKey && CONFIG.projectId);
 const BASE = new URL('../../', import.meta.url);
 const FIREBASE_CDN = 'https://www.gstatic.com/firebasejs/10.12.2/';
 
-const DEMO_KEY = 'aunsa-demo-db';
-const DEMO_USER_KEY = 'aunsa-demo-user';
-const DEMO_OWNER = 'club@aunsa.demo';
-const OWNER_EMAIL = (LIVE ? CONFIG.ownerEmail || '' : DEMO_OWNER).trim().toLowerCase();
+const OWNER_EMAIL = (CONFIG.ownerEmail || '').trim().toLowerCase();
 
 const SECTIONS = [
   { key: 'events', label: 'Events', help: 'Add, edit and delete events' },
@@ -35,17 +32,6 @@ const ROLE_DEFAULTS = {
   'Events & Community Officer': { events: true },
   'Social Media & Outreach Officer': { instagram: true, events: true, links: true },
   'Wellbeing & Equity Officer': { guides: true, links: true }
-};
-
-const DEMO_PEOPLE = {
-  'club@aunsa.demo': { label: 'Club Google account', note: 'The emergency key: always has full control' },
-  'president@aunsa.demo': { label: 'Alex, President', note: 'Can do everything and manages exec access' },
-  'secretary@aunsa.demo': { label: 'Priya, Secretary', note: 'Can edit club settings, guides and their own profile' },
-  'events@aunsa.demo': { label: 'Riley, Events & Community Officer', note: 'Can edit events and their own profile' },
-  'wellbeing@aunsa.demo': { label: 'Sam, Wellbeing & Equity Officer', note: 'Can edit guides, links and their own profile' },
-  'social@aunsa.demo': { label: 'Kai, Social Media & Outreach Officer', note: 'Can edit events, Instagram photos, links and their own profile' },
-  'treasurer@aunsa.demo': { label: 'Jordan, Treasurer', note: 'Can only edit their own profile' },
-  'someone@gmail.com': { label: 'Someone who isn\'t an exec', note: 'Sees the "no access" screen' }
 };
 
 /* ---------- Small helpers ---------- */
@@ -81,11 +67,11 @@ function friendlyError(err) {
   if (/permission/i.test(code)) return "You don't have permission to do that. Ask your president.";
   if (/popup-closed|cancelled-popup/i.test(code)) return 'Sign-in was cancelled.';
   if (/unauthorized-domain/i.test(code)) return 'This web address isn\'t allowed to sign in yet. See SETUP.md, step 5.';
-  if (/quota|QuotaExceeded/i.test(code)) return 'Storage is full. In demo mode, use "Reset demo".';
+  if (/quota|QuotaExceeded/i.test(code)) return 'Storage is full.';
   return 'Something went wrong: ' + (err && err.message ? err.message : code);
 }
 
-/* ---------- Stores: Firebase (live) or this browser (demo) ---------- */
+/* ---------- Store: the club's Firebase database ---------- */
 async function firebaseStore() {
   const [{ initializeApp }, A, F] = await Promise.all([
     import(FIREBASE_CDN + 'firebase-app.js'),
@@ -119,34 +105,6 @@ async function firebaseStore() {
   };
 }
 
-function demoStore() {
-  const read = () => { try { return JSON.parse(localStorage.getItem(DEMO_KEY) || '{}') || {}; } catch (e) { return {}; } };
-  const write = (db) => localStorage.setItem(DEMO_KEY, JSON.stringify(db));
-  const listeners = [];
-  const current = () => {
-    const email = localStorage.getItem(DEMO_USER_KEY);
-    return email ? { email, name: (DEMO_PEOPLE[email] || {}).label || email, verified: true } : null;
-  };
-  const api = {
-    mode: 'demo',
-    onAuth(cb) { listeners.push(cb); cb(current()); },
-    async signIn(email) { localStorage.setItem(DEMO_USER_KEY, email); listeners.forEach((l) => l(current())); },
-    async signOut() { localStorage.removeItem(DEMO_USER_KEY); listeners.forEach((l) => l(null)); },
-    async get(path) { const v = read()[path]; return v ? JSON.parse(JSON.stringify(v)) : null; },
-    async set(path, data) { const db = read(); db[path] = stripPrivate(data); write(db); },
-    async update(path, data) { const db = read(); db[path] = Object.assign({}, db[path], stripPrivate(data)); write(db); },
-    async remove(path) { const db = read(); delete db[path]; write(db); },
-    async list(coll) {
-      const db = read();
-      return Object.keys(db).filter((p) => { const parts = p.split('/'); return parts.length === 2 && parts[0] === coll; })
-        .map((p) => ({ ...db[p], _id: p.split('/')[1] }));
-    },
-    async add(coll, data) { const id = Math.random().toString(36).slice(2, 12); await api.set(coll + '/' + id, data); return id; },
-    async recentLog() { return (await api.list('log')).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 100); }
-  };
-  return api;
-}
-
 async function fileJSON(name) {
   const res = await fetch(new URL('data/' + name + '.json', BASE), { cache: 'no-cache' });
   if (!res.ok) throw new Error(name + '.json ' + res.status);
@@ -166,26 +124,6 @@ async function importStarterContent(store, teamOwners) {
     await store.add('team', { ...team[i], order: i + 1, ownerEmail: (teamOwners && teamOwners[team[i].name]) || '' });
   }
   for (let i = 0; i < guides.length; i++) await store.add('guides', { ...guides[i], order: i + 1 });
-}
-
-async function seedDemo(store) {
-  if (localStorage.getItem(DEMO_KEY)) return;
-  write({});
-  function write(v) { localStorage.setItem(DEMO_KEY, JSON.stringify(v)); }
-  await importStarterContent(store, {
-    Alex: 'president@aunsa.demo', Priya: 'secretary@aunsa.demo', Riley: 'events@aunsa.demo', Sam: 'wellbeing@aunsa.demo', Kai: 'social@aunsa.demo', Jordan: 'treasurer@aunsa.demo'
-  });
-  const members = [
-    ['president@aunsa.demo', 'Alex', 'President', true, ALL_PERMS],
-    ['secretary@aunsa.demo', 'Priya', 'Secretary', false, ROLE_DEFAULTS['Secretary']],
-    ['events@aunsa.demo', 'Riley', 'Events & Community Officer', false, ROLE_DEFAULTS['Events & Community Officer']],
-    ['wellbeing@aunsa.demo', 'Sam', 'Wellbeing & Equity Officer', false, ROLE_DEFAULTS['Wellbeing & Equity Officer']],
-    ['social@aunsa.demo', 'Kai', 'Social Media & Outreach Officer', false, ROLE_DEFAULTS['Social Media & Outreach Officer']],
-    ['treasurer@aunsa.demo', 'Jordan', 'Treasurer', false, ROLE_DEFAULTS['Treasurer']]
-  ];
-  for (const [email, name, role, isPresident, perms] of members) {
-    await store.set('members/' + email, { email, name, role, isPresident, perms: { ...NO_PERMS, ...perms }, addedBy: DEMO_OWNER, addedAt: nowISO() });
-  }
 }
 
 /* ---------- Photos: shrunk in the browser, then stored ---------- */
@@ -957,57 +895,23 @@ views.handover = async (panel) => {
 /* ---------- Screens ---------- */
 const GOOGLE_ICON = '<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
 
-function demoBar() {
-  return store.mode === 'demo'
-    ? '<p class="demo-bar">Demo mode: changes are saved in this browser only, not online. <button type="button" data-reset-demo>Reset demo</button></p>'
-    : '';
-}
-
-function wireDemoBar() {
-  const b = $('[data-reset-demo]');
-  if (b) b.addEventListener('click', async () => {
-    if (!window.confirm('Reset the demo? This clears every change you made in demo mode.')) return;
-    localStorage.removeItem(DEMO_KEY);
-    localStorage.removeItem(DEMO_USER_KEY);
-    window.location.reload();
-  });
-}
-
-/* Demo mode only runs on this computer. "?real" shows the login screen execs will actually see. */
-const ON_THIS_COMPUTER = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
-const PREVIEW_REAL = new URLSearchParams(location.search).has('real');
-
 function signInScreen(error) {
-  const demoPicker = store.mode === 'demo' && !PREVIEW_REAL;
-  const body = demoPicker
-    ? '<p><strong>Testing only:</strong> pick who to try the dashboard as. Execs never see this list. <a href="admin.html?real">See the real login screen →</a></p>' +
-      '<div class="demo-people">' + Object.keys(DEMO_PEOPLE).map((email) =>
-        '<button type="button" data-demo-user="' + esc(email) + '"><strong>' + esc(DEMO_PEOPLE[email].label) + '</strong><span>' + esc(DEMO_PEOPLE[email].note) + '</span></button>').join('') + '</div>'
-    : '<button class="google-btn" type="button" data-google>' + GOOGLE_ICON + 'Sign in with Google</button>';
-  appEl().innerHTML = (demoPicker ? demoBar() : '') +
-    (store.mode === 'demo' && PREVIEW_REAL ? '<p class="demo-bar">Preview of the real exec login. <a href="admin.html" style="color:inherit">Back to testing mode</a></p>' : '') +
+  appEl().innerHTML =
     '<main class="signin" id="admin-main"><div class="signin-card">' +
       '<img src="assets/img/logo/aunsa-mark.webp" alt="" width="112" height="112">' +
       '<h1>Exec login</h1>' +
       '<p>For AUNSA execs. Sign in with your Google account and you\'ll see the parts of the website you can edit.</p>' +
-      body +
+      '<button class="google-btn" type="button" data-google>' + GOOGLE_ICON + 'Sign in with Google</button>' +
       (error ? '<p class="signin-error" role="alert">' + esc(error) + '</p>' : '') +
       '<p style="margin-top:1.5rem"><a href="index.html">← Back to the website</a></p>' +
     '</div></main>';
-  wireDemoBar();
-  const g = $('[data-google]');
-  if (g) g.addEventListener('click', async () => {
-    if (store.mode === 'demo') {
-      signInScreen('This is just a preview. Google sign-in starts working once Firebase is set up.');
-      return;
-    }
+  $('[data-google]').addEventListener('click', async () => {
     try { await store.signIn(); } catch (e) { signInScreen(friendlyError(e)); }
   });
-  $$('[data-demo-user]').forEach((b) => b.addEventListener('click', () => store.signIn(b.getAttribute('data-demo-user'))));
 }
 
 function noAccessScreen(user) {
-  appEl().innerHTML = demoBar() +
+  appEl().innerHTML =
     '<main class="signin" id="admin-main"><div class="signin-card">' +
       '<img src="assets/img/logo/aunsa-mark.webp" alt="" width="112" height="112">' +
       '<h1>No access yet</h1>' +
@@ -1015,7 +919,6 @@ function noAccessScreen(user) {
       '<p>Ask your president to add this exact Google account in <strong>Exec access</strong>, or sign in with a different account.</p>' +
       '<button class="btn btn-outline" type="button" data-signout>Use a different account</button>' +
     '</div></main>';
-  wireDemoBar();
   $('[data-signout]').addEventListener('click', () => store.signOut());
 }
 
@@ -1043,7 +946,7 @@ function shell() {
   const me = state.me;
   const items = navItems();
   if (!items.some((i) => i.view === state.view)) state.view = 'overview';
-  appEl().innerHTML = demoBar() +
+  appEl().innerHTML =
     '<header class="admin-top"><div class="container admin-top-inner">' +
       '<a class="brand" href="index.html"><img src="assets/img/logo/aunsa-mark.webp" alt="" width="48" height="48"><span class="brand-text"><span class="brand-name">AUN<span>SA</span></span><span class="brand-sub">Exec dashboard</span></span></a>' +
       '<div class="who"><strong>' + esc(me.name || me.email) + '</strong><span>' + esc(me.role || '') + (me.isPresident ? ' · full control' : '') + '</span></div>' +
@@ -1056,7 +959,6 @@ function shell() {
         : '<button type="button" data-view="' + i.view + '"' + (i.view === state.view ? ' aria-current="page"' : '') + '>' + esc(i.label) + '</button>').join('') + '</nav>' +
       '<main class="panel" id="admin-main" tabindex="-1"></main>' +
     '</div>';
-  wireDemoBar();
   $('[data-signout]').addEventListener('click', () => store.signOut());
   $$('[data-view]').forEach((b) => b.addEventListener('click', () => {
     state.view = b.getAttribute('data-view');
@@ -1083,18 +985,16 @@ async function start() {
 /* ---------- Boot ---------- */
 (async function boot() {
   try {
-    /* On the published website, never show demo mode: until Firebase is set up, explain that instead. */
-    if (!LIVE && !ON_THIS_COMPUTER) {
+    if (!LIVE) {
       appEl().innerHTML = '<main class="signin" id="admin-main"><div class="signin-card">' +
         '<img src="assets/img/logo/aunsa-mark.webp" alt="" width="112" height="112">' +
         '<h1>Exec login</h1><p>Exec login isn\'t switched on yet. It will be ready soon!</p>' +
         '<p><a href="index.html">← Back to the website</a></p></div></main>';
       return;
     }
-    store = LIVE ? await firebaseStore() : demoStore();
-    if (!LIVE) await seedDemo(store);
+    store = await firebaseStore();
     store.onAuth((user) => {
-      state.user = store.mode === 'demo' && PREVIEW_REAL ? null : user;
+      state.user = user;
       state.view = 'overview';
       state.editing = null;
       start();

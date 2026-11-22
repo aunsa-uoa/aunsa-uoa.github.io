@@ -1,7 +1,6 @@
-/* AUNSA Firebase settings.
-   Fill these in once during setup (see SETUP.md). Until apiKey is filled in,
-   the site runs in DEMO MODE: the exec dashboard works in your browser only
-   and nothing is saved online. */
+/* AUNSA Firebase settings (see SETUP.md).
+   These aren't secret: they're meant to be in the website. The data is
+   protected by the security rules in firestore.rules. */
 window.AUNSA_FIREBASE = {
   apiKey: "AIzaSyDHX7ykB2RxfGLUkM4oojlSGLqEEW2Bmn4",
   authDomain: "aunsa-website.firebaseapp.com",

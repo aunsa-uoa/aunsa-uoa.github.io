@@ -1,8 +1,7 @@
 /* AUNSA data loader for the public website.
-   Content comes from one of three places, in this order:
-   1. Firebase (once SETUP.md is done), read with Firestore's public web API
-   2. Demo mode: edits made in the exec dashboard on this browser
-   3. The starter files in /data
+   Content comes from the club's Firebase database (read with Firestore's
+   public web API). If Firebase isn't set up or can't be reached, the
+   starter files in /data are shown instead.
    Every page gets the same shapes back, wherever the content lives. */
 (function () {
   'use strict';
@@ -10,7 +9,6 @@
   var BASE = new URL('../../', document.currentScript.src);
   var CONFIG = window.AUNSA_FIREBASE || {};
   var LIVE = Boolean(CONFIG.apiKey && CONFIG.projectId);
-  var DEMO_KEY = 'aunsa-demo-db';
 
   /* ---------- Firestore REST helpers ---------- */
   function restBase() {
@@ -54,21 +52,6 @@
     });
   }
 
-  /* ---------- Demo mode (browser only) ---------- */
-  function demoDb() {
-    try { return JSON.parse(localStorage.getItem(DEMO_KEY) || 'null'); } catch (e) { return null; }
-  }
-  function demoList(db, collection) {
-    return Object.keys(db).filter(function (p) {
-      var parts = p.split('/');
-      return parts.length === 2 && parts[0] === collection;
-    }).map(function (p) {
-      var data = Object.assign({}, db[p]);
-      data._id = p.split('/')[1];
-      return data;
-    });
-  }
-
   /* ---------- Starter files ---------- */
   function fileJSON(name) {
     return fetch(new URL('data/' + name + '.json', BASE), { cache: 'no-cache' }).then(function (res) {
@@ -109,11 +92,6 @@
         return result == null ? fileJSON(name) : result;
       }).catch(function () { return fileJSON(name); });
     }
-    var db = demoDb();
-    if (db) {
-      return fromSource(name, function (p) { return db[p] || null; }, function (c) { return demoList(db, c); })
-        .then(function (result) { return result == null ? fileJSON(name) : result; });
-    }
     return fileJSON(name);
   }
 
@@ -130,8 +108,7 @@
       if (LIVE) {
         imageCache[id] = restGet('images/' + encodeURIComponent(id)).then(function (d) { return d ? d.data : ''; }).catch(function () { return ''; });
       } else {
-        var db = demoDb() || {};
-        imageCache[id] = Promise.resolve((db['images/' + id] || {}).data || '');
+        imageCache[id] = Promise.resolve('');
       }
     }
     return imageCache[id];
@@ -149,5 +126,5 @@
     });
   }
 
-  window.AUNSA_DATA = { load: load, image: image, hydrate: hydrate, live: LIVE, demo: !LIVE && Boolean(demoDb()) };
+  window.AUNSA_DATA = { load: load, image: image, hydrate: hydrate, live: LIVE };
 })();

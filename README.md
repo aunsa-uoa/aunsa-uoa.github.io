@@ -21,9 +21,9 @@ It's hosted free on GitHub Pages. Execs sign in with Google to edit it in the ex
 | `data/*.json` | Starter content, imported into Firebase during setup. Also shown if Firebase can't be reached. |
 | `assets/img/logo/` | The AUNSA logo |
 
-## Demo mode
+## Updating the code
 
-Until `firebase-config.js` is filled in, the dashboard runs in demo mode, but only when previewing on your own computer (localhost). On the published website, visitors and execs never see demo mode: they see a "not switched on yet" message until Firebase is set up, then the Google sign-in button. Open `admin.html?real` locally to preview the real login screen. Pick who to sign in as (president, events officer and so on) to see what each exec sees. Changes are saved in your browser only, and the public pages in that same browser show them. Use **Reset demo** in the yellow bar to start again.
+Execs edit content in the dashboard, not in these files. If you change a `.css` or `.js` file, also change the `?v=` number after it in every `.html` file (for example `?v=20261122b` to `?v=20261201a`). Otherwise visitors' browsers can keep showing the old version for up to 10 minutes.
 
 ## Previewing on your computer
 

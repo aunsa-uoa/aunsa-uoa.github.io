@@ -1,7 +1,7 @@
 # One-off setup: Google sign-in for the exec dashboard
 
 Do this once, with the **club's own Google account**. It takes about 20 minutes.
-Until it's done, the dashboard at `admin.html` runs in **demo mode**: you can try everything, but changes only stay in your own browser.
+Until it's done, the exec login at `admin.html` just says it isn't switched on yet.
 
 ## 1. Create the club Google account
 

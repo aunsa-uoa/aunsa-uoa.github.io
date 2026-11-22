@@ -3,13 +3,6 @@
 body.admin { background: var(--bg); }
 .admin-loading { padding: 3rem 1rem; text-align: center; }
 
-.demo-bar {
-  margin: 0; padding: 0.55rem 1rem; background: var(--sun); color: var(--ink);
-  display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 0.95rem; text-align: center;
-}
-.demo-bar button { font: inherit; font-weight: 700; background: none; border: 0; text-decoration: underline; cursor: pointer; color: var(--ink); min-height: 32px; }
-
 /* ---------- Sign-in screen ---------- */
 .signin { min-height: 80vh; display: grid; place-items: center; padding: 2rem 1rem; }
 .signin-card { width: min(30rem, 100%); background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2rem; text-align: center; }
@@ -24,15 +17,6 @@ body.admin { background: var(--bg); }
 }
 .google-btn:hover { border-color: var(--blue); }
 .google-btn svg { width: 1.4rem; height: 1.4rem; }
-.demo-people { display: grid; gap: 0.5rem; margin-top: 1rem; text-align: left; }
-.demo-people button {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; width: 100%;
-  padding: 0.7rem 1rem; border: 2px solid var(--line); border-radius: var(--radius-sm);
-  background: #fff; color: var(--ink); font: inherit; cursor: pointer; text-align: left;
-}
-.demo-people button:hover { border-color: var(--purple-mid); }
-.demo-people strong { font-family: var(--font-display); font-size: 1.05rem; }
-.demo-people span { color: var(--ink-soft); font-size: 0.92rem; }
 .signin-error { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: #fde4dc; color: var(--ink); text-align: left; }
 
 /* ---------- Shell ---------- */
